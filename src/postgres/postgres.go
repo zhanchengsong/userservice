@@ -29,7 +29,7 @@ func ConnectDB() *gorm.DB {
 	defer db.Close()
 	// Migrate DDL
 	db.AutoMigrate(
-		&model.User
-		)
-	
+		&model.User{})
+	log.Print("Succesfully connected to db")
+	return db
 }

@@ -1,4 +1,4 @@
-module https: //github.com/zhanchengsong/userservice.git
+module github.com/zhanchengsong/userservice.git
 
 go 1.14
 
