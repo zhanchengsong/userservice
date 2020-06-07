@@ -5,8 +5,8 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/joho/godotenv"
-	"log"
 	"github.com/zhanchengsong/userservice/model"
+	"log"
 	"os"
 )
 
