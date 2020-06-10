@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	cloud.google.com/go/firestore v1.2.0
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-bongo/bongo v0.10.4
 	github.com/jinzhu/gorm v1.9.12
 	github.com/joho/godotenv v1.3.0
