@@ -1,9 +1,10 @@
 package main
+
 import (
 	"github.com/joho/godotenv"
-	"github.com/zhanchengsong/userservice/postgres"
+	"github.com/zhanchengsong/userservice/route"
 	"log"
-	"os"
+	"net/http"
 )
 // This service handle user related request
 // Incliding CRUD on user, friend/unfriend
@@ -13,9 +14,9 @@ func main() {
 	if err != nil {
 		log.Fatal("Cannot not load env file")
 	}
-	username := os.Getenv("PG_USERNAME")
-	password := os.Getenv("PG_PASSWORD")
-	databaseName := os.Getenv("PG_DBNAME")
-	databaseHost := os.Getenv("DB_HOST")
-	postgres.ConnectDB(username, password, databaseName, databaseHost)
+	http.Handle("/", route.Handlers())
+	// Start service
+	port := "3001"
+	log.Printf("Server up on port '%s'", port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

@@ -25,7 +25,7 @@ func ConnectDB(username string, password string, databaseName string, databaseHo
 		log.Fatal("DB connection failed")
 		panic(err)
 	}
-	defer db.Close()
+	//defer db.Close()
 	// Migrate DDL
 	db.AutoMigrate(
 		&model.User{})
