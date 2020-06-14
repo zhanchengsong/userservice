@@ -8,8 +8,9 @@ import (
 func Handlers() *mux.Router {
 	r := mux.NewRouter().StrictSlash(true)
 	r.Use(CommonMiddleware)
-
-	r.HandleFunc("/register", controllers.CreateUser).Methods("POST")
+	// These are the
+	r.HandleFunc("/user", controllers.CreateUser).Methods("POST")
+	r.HandleFunc("/token", controllers.Login).Methods("POST")
 	return r
 }
 

@@ -6,6 +6,7 @@ import (
 	"github.com/zhanchengsong/userservice/dbservice"
 	"github.com/zhanchengsong/userservice/model"
 	"github.com/zhanchengsong/userservice/postgres"
+	"github.com/zhanchengsong/userservice/utils"
 	"log"
 	"net/http"
 	"os"
@@ -17,6 +18,7 @@ type ErrorResponse struct {
 
 type error interface {
 	Error() string
+	Cause() string
 }
 
 var userDBService dbservice.UserDbservice
@@ -39,15 +41,68 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(user)
 	savedUser, err := userDBService.SaveUser(*user)
 	if err != nil {
-		log.Println(err.Error())
+		log.Println(err.Message)
 		httpErr:= ErrorResponse{
 			Err: "Failed User registration",
 		}
-		encodingError := json.NewEncoder(w).Encode(httpErr)
-		if encodingError != nil {
-			log.Println(encodingError)
-		}
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(httpErr)
+		return
+
+	} else {
+		savedUser.Password = ""
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(savedUser)
+		return
 	}
-	savedUser.Password = ""
-	json.NewEncoder(w).Encode(savedUser)
+
+}
+
+func Login(w http.ResponseWriter, r *http.Request) {
+	user := model.User{}
+	json.NewDecoder(r.Body).Decode(&user)
+	userFound, err := userDBService.FindUser(user.Email, user.Password)
+	if err != nil {
+		log.Println(err.Message)
+		httpErr := ErrorResponse{
+			Err: err.Message,
+		}
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(httpErr)
+		return
+	}
+	// Encode JWT if user is found
+	jwt, errt := utils.TokenizeUser(userFound)
+	if errt != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(
+			struct{
+				Err string
+			}{errt.Error()},
+			)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(
+			struct {
+				JWTToken string
+			}{
+				jwt,
+			})
+	}
+}
+
+func findUserById(w http.ResponseWriter, r *http.Request) {
+	userId, ok := r.URL.Query()["userId"]
+	if !ok {
+		log.Println("userId is not found in the query parameter")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(
+			struct{
+				Err string
+			}{
+				Err: "Cannot get userId from query parameter",
+			})
+	}
+	// Find the user
+
 }
