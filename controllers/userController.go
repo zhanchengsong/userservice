@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 type ErrorResponse struct {
@@ -91,7 +92,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func findUserById(w http.ResponseWriter, r *http.Request) {
+func FindUserById(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.URL.Query()["userId"]
 	if !ok {
 		log.Println("userId is not found in the query parameter")
@@ -104,5 +105,40 @@ func findUserById(w http.ResponseWriter, r *http.Request) {
 			})
 	}
 	// Find the user
+	userIdInt, _ := strconv.Atoi(userId[0])
+	foundUser, err := userDBService.FindUserById(userIdInt)
+	if err != nil {
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(err)
+		return
+	} else {
+		w.WriteHeader(200)
+		json.NewEncoder(w).Encode(foundUser)
+	}
+	return
+
+}
+func FindUsersByPrefix(w http.ResponseWriter, r *http.Request) {
+	userprefix, ok := r.URL.Query()["userprefix"]
+	if !ok {
+		log.Println("userprefix is not found in the query parameter")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(
+			struct{
+				Err string
+			}{
+				Err: "Cannot get userprefix from query parameter",
+			})
+	}
+	foundUsers, err := userDBService.FindUserByPrefix(userprefix[0])
+	if err != nil {
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(err)
+		return
+	} else {
+		w.WriteHeader(200)
+		json.NewEncoder(w).Encode(foundUsers)
+	}
+	return
 
 }

@@ -11,6 +11,8 @@ func Handlers() *mux.Router {
 	// These are the
 	r.HandleFunc("/user", controllers.CreateUser).Methods("POST")
 	r.HandleFunc("/token", controllers.Login).Methods("POST")
+	r.HandleFunc("/user", controllers.FindUserById).Methods("GET")
+	r.HandleFunc("/users", controllers.FindUsersByPrefix).Methods("GET")
 	return r
 }
 

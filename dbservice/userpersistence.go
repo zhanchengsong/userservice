@@ -1,6 +1,7 @@
 package dbservice
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	myerror "github.com/zhanchengsong/userservice/error"
 	"github.com/zhanchengsong/userservice/model"
@@ -54,5 +55,21 @@ func (dbservice *UserDbservice) FindUserById(userId int) (model.User, *myerror.D
 		dbError := myerror.DBError{Clause: "User Not Found", Code: 404, Message: err.Error()}
 		return model.User{}, &dbError
 	}
+	user.Password = ""
 	return *user, nil
+}
+// FindUserByPrefix find the list of users containing the name of prefix
+func (dbservice *UserDbservice) FindUserByPrefix(userNamePrefix string) ([]model.User, *myerror.DBError) {
+	users := &( []model.User{} )
+	err := dbservice.DbConnection.Where("username LIKE ?", fmt.Sprintf("%%%s%%", userNamePrefix)).Find(&users).Error
+	if err != nil {
+		log.Println(err.Error())
+		dbError := myerror.DBError{Clause: "Users Not Found", Code: 404, Message: err.Error()}
+		return *users, &dbError
+	}
+	// Clean out the data
+	for _, user := range *users {
+		user.Password = ""
+	}
+	return *users, nil
 }
