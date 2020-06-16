@@ -1,10 +1,11 @@
-POST http://localhost:3001/register
+POST http://localhost:3001/user
 Content-Type: application/json
 
 {
-  "name": "testUser1",
-  "email": "test@test.com",
+  "username": "testUser1",
+  "email": "test@test123.com",
   "password": "ATestPassword"
 }
 
-###
+
+GET http://localhost:3001/user?userId=1
