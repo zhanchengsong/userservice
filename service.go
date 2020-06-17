@@ -15,7 +15,7 @@ func main() {
 	// Loading extra env settings from .env file
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Cannot not load env file")
+		log.Println("serverice.go: Cannot not load env file")
 	}
 	http.Handle("/", route.Handlers())
 	// Start service

@@ -2,15 +2,15 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/joho/godotenv"
-	"github.com/zhanchengsong/userservice/dbservice"
-	"github.com/zhanchengsong/userservice/model"
-	"github.com/zhanchengsong/userservice/postgres"
-	"github.com/zhanchengsong/userservice/utils"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
+
+	"github.com/zhanchengsong/userservice/dbservice"
+	"github.com/zhanchengsong/userservice/model"
+	"github.com/zhanchengsong/userservice/postgres"
+	"github.com/zhanchengsong/userservice/utils"
 )
 
 type ErrorResponse struct {
@@ -25,10 +25,7 @@ type error interface {
 var userDBService dbservice.UserDbservice
 
 func init() {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		log.Fatal("Cannot not load env file")
-	}
+	log.Println("Initializing db connection")
 	username := os.Getenv("PG_USERNAME")
 	password := os.Getenv("PG_PASSWORD")
 	databaseName := os.Getenv("PG_DBNAME")
@@ -43,7 +40,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	savedUser, err := userDBService.SaveUser(*user)
 	if err != nil {
 		log.Println(err.Message)
-		httpErr:= ErrorResponse{
+		httpErr := ErrorResponse{
 			Err: "Failed User registration",
 		}
 		w.WriteHeader(err.Code)
@@ -77,10 +74,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	if errt != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(
-			struct{
+			struct {
 				Err string
 			}{errt.Error()},
-			)
+		)
 	} else {
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(
@@ -98,7 +95,7 @@ func FindUserById(w http.ResponseWriter, r *http.Request) {
 		log.Println("userId is not found in the query parameter")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(
-			struct{
+			struct {
 				Err string
 			}{
 				Err: "Cannot get userId from query parameter",
@@ -124,7 +121,7 @@ func FindUsersByPrefix(w http.ResponseWriter, r *http.Request) {
 		log.Println("userprefix is not found in the query parameter")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(
-			struct{
+			struct {
 				Err string
 			}{
 				Err: "Cannot get userprefix from query parameter",
