@@ -17,7 +17,14 @@ func Handlers() *mux.Router {
 	r.HandleFunc("/token", controllers.Login).Methods("POST")
 	r.HandleFunc("/user", controllers.FindUserById).Methods("GET")
 	r.HandleFunc("/users", controllers.FindUsersByPrefix).Methods("GET")
-	return r
+
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"http://localhost:3000"},
+		AllowCredentials: true,
+		})
+	
+	h := c.Handler(r)
+	return h;
 }
 
 func CommonMiddleware(next http.Handler) http.Handler {
