@@ -3,7 +3,7 @@ package route
 import (
 	"log"
 	"net/http"
-	"github.com/rs/cors"
+	
 	"github.com/gorilla/mux"
 	"github.com/zhanchengsong/userservice/controllers"
 )
@@ -18,12 +18,6 @@ func Handlers() *mux.Router {
 	r.HandleFunc("/user", controllers.FindUserById).Methods("GET")
 	r.HandleFunc("/users", controllers.FindUsersByPrefix).Methods("GET")
 
-	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:3000"},
-		AllowCredentials: true,
-		})
-	
-	r := c.Router(r);
 	return r;
 }
 

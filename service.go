@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-
+	"github.com/rs/cors"
 	"github.com/joho/godotenv"
 	"github.com/zhanchengsong/userservice/route"
 )
@@ -17,7 +17,13 @@ func main() {
 	if err != nil {
 		log.Println("serverice.go: Cannot not load env file")
 	}
-	http.Handle("/", route.Handlers())
+
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"http://localhost:3000"},
+		AllowCredentials: true,
+		});
+
+	http.Handle("/", c.Handler ( router ) );
 	// Start service
 	port := os.Getenv("SERVER_PORT")
 	log.Printf("Server up on port '%s'", port)
