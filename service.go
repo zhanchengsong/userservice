@@ -23,7 +23,7 @@ func main() {
 		AllowCredentials: true,
 		});
 
-	http.Handle("/", c.Handler ( router ) );
+	http.Handle("/", c.Handler ( route.Handlers() ) );
 	// Start service
 	port := os.Getenv("SERVER_PORT")
 	log.Printf("Server up on port '%s'", port)
