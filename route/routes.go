@@ -3,7 +3,7 @@ package route
 import (
 	"log"
 	"net/http"
-
+	"github.com/rs/cors"
 	"github.com/gorilla/mux"
 	"github.com/zhanchengsong/userservice/controllers"
 )
