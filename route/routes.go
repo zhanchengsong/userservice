@@ -23,8 +23,8 @@ func Handlers() *mux.Router {
 		AllowCredentials: true,
 		})
 	
-	h := c.Handler(r)
-	return h;
+	r := c.Router(r);
+	return r;
 }
 
 func CommonMiddleware(next http.Handler) http.Handler {
