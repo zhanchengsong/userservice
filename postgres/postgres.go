@@ -31,6 +31,8 @@ func ConnectDB(username string, password string, databaseName string, databaseHo
 	// Migrate DDL
 	db.AutoMigrate(
 		&model.User{})
+	db.AutoMigrate(
+		&model.Follow{})
 	log.Print("Succesfully connected to db")
 	return db
 }

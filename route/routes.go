@@ -17,8 +17,8 @@ func Handlers() *mux.Router {
 	r.HandleFunc("/token", controllers.Login).Methods("POST")
 	r.HandleFunc("/user", controllers.FindUserById).Methods("GET")
 	r.HandleFunc("/users", controllers.FindUsersByPrefix).Methods("GET")
-
-	return r;
+	r.HandleFunc("/follow", controllers.CreateFollow).Methods("POST")
+	return r
 }
 
 func CommonMiddleware(next http.Handler) http.Handler {

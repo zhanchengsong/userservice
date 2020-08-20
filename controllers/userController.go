@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/joho/godotenv"
 	"github.com/zhanchengsong/userservice/dbservice"
 	"github.com/zhanchengsong/userservice/model"
 	"github.com/zhanchengsong/userservice/postgres"
@@ -25,6 +26,8 @@ type error interface {
 var userDBService dbservice.UserDbservice
 
 func init() {
+	log.Println("Loading .env if exists")
+	godotenv.Load()
 	log.Println("Initializing db connection")
 	username := os.Getenv("PG_USERNAME")
 	password := os.Getenv("PG_PASSWORD")
