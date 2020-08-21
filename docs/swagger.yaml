@@ -1,0 +1,50 @@
+basePath: /
+definitions:
+  model.Follow:
+    properties:
+      followee:
+        type: string
+      follower:
+        type: string
+    type: object
+  utils.HttpError:
+    properties:
+      Err:
+        type: string
+    type: object
+host: localhost:3006
+info:
+  contact:
+    name: Zhancheng Song, Gordon Lee
+  description: This microservice supports basic user related operations
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Userservice API
+  version: "1.0"
+paths:
+  /follow:
+    post:
+      consumes:
+      - application/json
+      description: Create a follow relationship of two users
+      parameters:
+      - description: JSON describing relationship
+        in: body
+        name: follow
+        required: true
+        schema:
+          $ref: '#/definitions/model.Follow'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Follow'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.HttpError'
+      summary: Create a follow relationship
+swagger: "2.0"

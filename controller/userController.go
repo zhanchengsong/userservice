@@ -1,4 +1,4 @@
-package controllers
+package controller
 
 import (
 	"encoding/json"
@@ -43,7 +43,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	savedUser, err := userDBService.SaveUser(*user)
 	if err != nil {
 		log.Println(err.Message)
-		httpErr := ErrorResponse{
+		httpErr := utils.HttpError{
 			Err: "Failed User registration",
 		}
 		w.WriteHeader(err.Code)
@@ -65,7 +65,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	userFound, err := userDBService.FindUser(user.Email, user.Password)
 	if err != nil {
 		log.Println(err.Message)
-		httpErr := ErrorResponse{
+		httpErr := utils.HttpError{
 			Err: err.Message,
 		}
 		w.WriteHeader(err.Code)
@@ -89,6 +89,18 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			}{
 				jwt,
 			})
+	}
+}
+
+func FindUser(w http.ResponseWriter, r *http.Request) {
+	_, idOk := r.URL.Query()["userId"]
+	if idOk {
+		FindUserById(w, r)
+	} else {
+		_, nameOk := r.URL.Query()["username"]
+		if nameOk {
+			FindUserByUsername(w,r)
+		}
 	}
 }
 
@@ -140,5 +152,34 @@ func FindUsersByPrefix(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(foundUsers)
 	}
 	return
+
+}
+
+func FindUserByUsername(w http.ResponseWriter, r *http.Request) {
+	username, ok := r.URL.Query()["username"]
+	if !ok {
+		log.Println("Failed getting username param from url")
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(
+			struct {
+				Err string
+			}{
+				Err: "Cannot find the user with username",
+			})
+	}
+	foundUser, err := userDBService.FindUserByUsername(username[0])
+	if err != nil {
+		log.Println(err.Message)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(
+				struct {
+					Err string
+				}{
+					Err: "Failed when search user",
+				})
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(foundUser)
+	}
 
 }

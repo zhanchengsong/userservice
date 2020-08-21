@@ -21,7 +21,7 @@ func (followDBService *FollowDBservice) CreateRelation(follow model.Follow) (mod
 		return follow, &myerror.DBError{Code: 500, Message: getErr.Error(), Clause: "Failed to check existing relationship"}
 	}
 	if len(dupFollows) > 0 {
-		return follow, &myerror.DBError{Code: 405, Message: "Duplicated entry", Clause: "Relationship exists"}
+		return follow, &myerror.DBError{Code: 409, Message: "Duplicated entry", Clause: "Relationship exists"}
 	}
 	createErr := followDBService.DbConnection.Create(&follow).Error
 	if createErr != nil {

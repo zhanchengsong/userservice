@@ -73,3 +73,15 @@ func (dbservice *UserDbservice) FindUserByPrefix(userNamePrefix string) ([]model
 	}
 	return *users, nil
 }
+
+// Get user profile
+func (dbservice *UserDbservice) FindUserByUsername(username string) (model.User, *myerror.DBError) {
+	user := &( model.User{})
+	err := dbservice.DbConnection.Where("username = ?", username).First(&user).Error
+	if err != nil {
+		log.Println(err.Error())
+		dbError := myerror.DBError{Clause: "Cannot find user", Code: 404, Message: err.Error()}
+		return *user, &dbError
+	}
+	return *user, nil
+}

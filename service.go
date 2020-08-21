@@ -10,7 +10,20 @@ import (
 )
 
 // This service handle user related request
-// Incliding CRUD on user, friend/unfriend
+// Including CRUD on user, friend/unfriend
+// @title Userservice API
+// @version 1.0
+// @description This microservice supports basic user related operations
+
+// @contact.name Zhancheng Song, Gordon Lee
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:3006
+// @BasePath /
+// @query.collection.format multi
+
 func main() {
 	// Loading extra env settings from .env file
 	err := godotenv.Load()
