@@ -17,10 +17,12 @@ func Handlers() *mux.Router {
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 	// These are the
 	r.HandleFunc("/user", controller.CreateUser).Methods("POST")
-	r.HandleFunc("/token", controller.Login).Methods("POST")
+	r.HandleFunc("/login", controller.Login).Methods("POST")
 	r.HandleFunc("/user", controller.FindUser).Methods("GET")
 	r.HandleFunc("/users", controller.FindUsersByPrefix).Methods("GET")
 	r.HandleFunc("/follow", controller.CreateFollow).Methods("POST")
+	r.HandleFunc("/followers", controller.GetFollowers).Methods("GET")
+	r.HandleFunc("/followees", controller.GetFollowers).Methods("GET")
 	return r
 }
 

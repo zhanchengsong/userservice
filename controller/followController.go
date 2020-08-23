@@ -46,16 +46,73 @@ func CreateFollow(w http.ResponseWriter, r *http.Request) {
 			Err: err.Message,
 		}
 		w.WriteHeader(err.Code)
-		w.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(httpErr)
 		return
 
 	} else {
 		w.WriteHeader(http.StatusCreated)
-		w.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(savedFollow)
 		return
 	}
 
 }
+
+// Find the followers of the user with username
+// @Summary Get an array of usernames that are following the user given in the parameter
+// @Description Fetch all usernames following the username
+// @Produce json
+// @Param uesrname path string true "The user name to get the followers"
+// @Success 200 {array} string
+// @Failure 404 {object} utils.HttpError
+// @Router /followers [GET]
+func GetFollowers(w http.ResponseWriter, r* http.Request) {
+	username, ok := r.URL.Query()["username"]
+	if !ok {
+		log.Println("Cannot get username from query ")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.HttpError{Err: "Failed to get parameter: username"})
+		return
+	}
+	followers, err := followDBService.FindFollowers(username[0])
+	if err != nil {
+		log.Println(err)
+		httpError := utils.HttpError{Err: err.Message}
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(httpError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(followers)
+
+}
+
+// Find the followees of the user with username
+// @Summary Get an array of usernames that the user is following given in the parameter
+// @Description Fetch all usernames the user is following
+// @Produce json
+// @Param uesrname path string true "The user name to get the followees"
+// @Success 200 {array} string
+// @Failure 404 {object} utils.HttpError
+// @Router /followees [GET]
+func GetFollowees(w http.ResponseWriter, r* http.Request) {
+	username, ok := r.URL.Query()["username"]
+	if !ok {
+		log.Println("Cannot get username from query ")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.HttpError{Err: "Failed to get parameter: username"})
+		return
+	}
+	followers, err := followDBService.FindFollowees(username[0])
+	if err != nil {
+		log.Println(err)
+		httpError := utils.HttpError{Err: err.Message}
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(httpError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(followers)
+
+}
+
 

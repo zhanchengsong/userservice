@@ -4,7 +4,7 @@ import (
 )
 // A simple structure mapping the following relationship
 type Follow struct {
-	gorm.Model           // This is bascially an "extend"
+	gorm.Model  `json:-`
 	Follower    string   `json:"follower"`
 	Followee    string   `json:"followee"`
 }

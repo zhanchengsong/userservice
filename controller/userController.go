@@ -36,6 +36,17 @@ func init() {
 	dbConnection := postgres.ConnectDB(username, password, databaseName, databaseHost)
 	userDBService = dbservice.UserDbservice{dbConnection}
 }
+
+// Create User Doc
+// @Summary Create a user
+// @Description Create a user in the database
+// @Accept  json
+// @Produce  json
+// @Param user body model.User true "JSON body describing user"
+// @Success 201 {object} model.User
+// @Failure 409 {object} utils.HttpError
+// @Failure 500 {object} utils.HttpError
+// @Router /user [POST]
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	// Decode json body into model.User
 	user := &model.User{}
@@ -59,6 +70,16 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// Create User Token after login
+// @Summary Create a JWToken for user login and return the entire profile
+// @Description Generate a JWToken if username/password is stored in database and return the complete profile including JWT Token
+// @Accept  json
+// @Produce  json
+// @Param user body model.User true "A body describing user profile including jwtToken"
+// @Success 201 {object} model.User
+// @Failure 409 {object} utils.HttpError
+// @Failure 500 {object} utils.HttpError
+// @Router /login [POST]
 func Login(w http.ResponseWriter, r *http.Request) {
 	user := model.User{}
 	json.NewDecoder(r.Body).Decode(&user)
@@ -82,16 +103,20 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			}{errt.Error()},
 		)
 	} else {
+		user.JWTToken = jwt
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(
-			struct {
-				JWTToken string
-			}{
-				jwt,
-			})
+		json.NewEncoder(w).Encode(user)
 	}
 }
-
+// Find the user by either user Id or user name
+// @Summary Create a JWToken for user login and return the entire profile
+// @Description Generate a JWToken if username/password is stored in database and return the complete profile including JWT Token
+// @Produce  json
+// @Param userId path string false "User ID to look for"
+// @Param username path string false "Username to look for"
+// @Success 200 {object} model.User
+// @Failure 404 {object} utils.HttpError
+// @Router /user [GET]
 func FindUser(w http.ResponseWriter, r *http.Request) {
 	_, idOk := r.URL.Query()["userId"]
 	if idOk {
@@ -130,6 +155,15 @@ func FindUserById(w http.ResponseWriter, r *http.Request) {
 	return
 
 }
+
+// Find the usernames starting from certain prefix
+// @Summary Get an array of usernames that start with prefix
+// @Description Fetch all usernames starting with the input prefix
+// @Produce json
+// @Param uesrprefix path string true "Prefix in the username to search for"
+// @Success 200 {array} string
+// @Failure 404 {object} utils.HttpError
+// @Router /users [GET]
 func FindUsersByPrefix(w http.ResponseWriter, r *http.Request) {
 	userprefix, ok := r.URL.Query()["userprefix"]
 	if !ok {

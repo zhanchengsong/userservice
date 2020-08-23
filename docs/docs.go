@@ -66,6 +66,197 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/followers": {
+            "get": {
+                "description": "Fetch all usernames following the username",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get an array of usernames that are following the user given in the parameter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The user name to get the followers",
+                        "name": "uesrname",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "description": "Generate a JWToken if username/password is stored in database and return the complete profile including JWT Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create a JWToken for user login and return the entire profile",
+                "parameters": [
+                    {
+                        "description": "A body describing user profile including jwtToken",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/utils.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "description": "Generate a JWToken if username/password is stored in database and return the complete profile including JWT Token",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create a JWToken for user login and return the entire profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID to look for",
+                        "name": "userId",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Username to look for",
+                        "name": "username",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.HttpError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a user in the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create a user",
+                "parameters": [
+                    {
+                        "description": "JSON body describing user",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/utils.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "description": "Fetch all usernames starting with the input prefix",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get an array of usernames that start with prefix",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Prefix in the username to search for",
+                        "name": "uesrprefix",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.HttpError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -80,10 +271,30 @@ var doc = `{
                 }
             }
         },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "displayName": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "iconUrl": {
+                    "type": "string"
+                },
+                "jwtToken": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "utils.HttpError": {
             "type": "object",
             "properties": {
-                "Err": {
+                "err": {
                     "type": "string"
                 }
             }
@@ -103,7 +314,7 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
-	Host:        "localhost:3006",
+	Host:        "localhost/api/v1/users",
 	BasePath:    "/",
 	Schemes:     []string{},
 	Title:       "Userservice API",

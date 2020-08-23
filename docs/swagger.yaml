@@ -7,12 +7,25 @@ definitions:
       follower:
         type: string
     type: object
-  utils.HttpError:
+  model.User:
     properties:
-      Err:
+      displayName:
+        type: string
+      email:
+        type: string
+      iconUrl:
+        type: string
+      jwtToken:
+        type: string
+      username:
         type: string
     type: object
-host: localhost:3006
+  utils.HttpError:
+    properties:
+      err:
+        type: string
+    type: object
+host: localhost/api/v1/users
 info:
   contact:
     name: Zhancheng Song, Gordon Lee
@@ -47,4 +60,129 @@ paths:
           schema:
             $ref: '#/definitions/utils.HttpError'
       summary: Create a follow relationship
+  /followers:
+    get:
+      description: Fetch all usernames following the username
+      parameters:
+      - description: The user name to get the followers
+        in: path
+        name: uesrname
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.HttpError'
+      summary: Get an array of usernames that are following the user given in the parameter
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Generate a JWToken if username/password is stored in database and return the complete profile including JWT Token
+      parameters:
+      - description: A body describing user profile including jwtToken
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.User'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HttpError'
+      summary: Create a JWToken for user login and return the entire profile
+  /user:
+    get:
+      description: Generate a JWToken if username/password is stored in database and return the complete profile including JWT Token
+      parameters:
+      - description: User ID to look for
+        in: path
+        name: userId
+        type: string
+      - description: Username to look for
+        in: path
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.HttpError'
+      summary: Create a JWToken for user login and return the entire profile
+    post:
+      consumes:
+      - application/json
+      description: Create a user in the database
+      parameters:
+      - description: JSON body describing user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.User'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HttpError'
+      summary: Create a user
+  /users:
+    get:
+      description: Fetch all usernames starting with the input prefix
+      parameters:
+      - description: Prefix in the username to search for
+        in: path
+        name: uesrprefix
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.HttpError'
+      summary: Get an array of usernames that start with prefix
 swagger: "2.0"

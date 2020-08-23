@@ -23,7 +23,7 @@ func (dbservice *UserDbservice) SaveUser(user model.User) (model.User, *myerror.
 	saveerr := dbservice.DbConnection.Create(&user).Error
 	if saveerr != nil {
 		log.Println(saveerr)
-		dbError := myerror.DBError{Code: 400, Message: saveerr.Error(), Clause: "DUPLICATE"}
+		dbError := myerror.DBError{Code: 409, Message: saveerr.Error(), Clause: "DUPLICATE"}
 		return user, &dbError
 	}
 	return user, nil
