@@ -60,6 +60,29 @@ paths:
           schema:
             $ref: '#/definitions/utils.HttpError'
       summary: Create a follow relationship
+  /followees:
+    get:
+      description: Fetch all usernames the user is following
+      parameters:
+      - description: The user name to get the followees
+        in: path
+        name: uesrname
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.HttpError'
+      summary: Get an array of usernames that the user is following given in the parameter
   /followers:
     get:
       description: Fetch all usernames following the username

@@ -67,6 +67,41 @@ var doc = `{
                 }
             }
         },
+        "/followees": {
+            "get": {
+                "description": "Fetch all usernames the user is following",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get an array of usernames that the user is following given in the parameter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The user name to get the followees",
+                        "name": "uesrname",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.HttpError"
+                        }
+                    }
+                }
+            }
+        },
         "/followers": {
             "get": {
                 "description": "Fetch all usernames following the username",
