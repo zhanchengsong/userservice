@@ -4,9 +4,11 @@ go 1.14
 
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+	github.com/aws/aws-sdk-go v1.34.9
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-openapi/spec v0.19.9 // indirect
 	github.com/go-openapi/swag v0.19.9 // indirect
+	github.com/google/uuid v1.1.1
 	github.com/gorilla/mux v1.7.4
 	github.com/jinzhu/gorm v1.9.12
 	github.com/joho/godotenv v1.3.0

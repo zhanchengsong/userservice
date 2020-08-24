@@ -15,8 +15,8 @@ func Handlers() *mux.Router {
 	r.Use(LoggingMiddleware)
 	r.Use(CommonMiddleware)
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
-	// These are the
 	r.HandleFunc("/user", controller.CreateUser).Methods("POST")
+	r.HandleFunc("/userWithIcon", controller.CreateUserWithIcon).Methods("POST")
 	r.HandleFunc("/login", controller.Login).Methods("POST")
 	r.HandleFunc("/user", controller.FindUser).Methods("GET")
 	r.HandleFunc("/users", controller.FindUsersByPrefix).Methods("GET")

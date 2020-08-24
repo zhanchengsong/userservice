@@ -12,6 +12,10 @@ type DBError struct {
 	Clause string
 }
 
+func (dbe *DBError) Error() string {
+	return dbe.Message
+}
+
 func (dbe *DBError) getCode() int{
 	return dbe.Code
 }

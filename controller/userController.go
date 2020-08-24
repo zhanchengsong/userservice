@@ -5,9 +5,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
+	"strings"
 
+	guuid "github.com/google/uuid"
 	"github.com/joho/godotenv"
+	"github.com/zhanchengsong/userservice/aws-service"
 	"github.com/zhanchengsong/userservice/dbservice"
 	"github.com/zhanchengsong/userservice/model"
 	"github.com/zhanchengsong/userservice/postgres"
@@ -36,7 +40,68 @@ func init() {
 	dbConnection := postgres.ConnectDB(username, password, databaseName, databaseHost)
 	userDBService = dbservice.UserDbservice{dbConnection}
 }
+// Create User With Icon Doc
+// @Summary Create a user
+// @Description Create a user in the database, this call accepts a multiform with image file as icon
+// @Accept  mpfd
+// @Produce  json
+// @Param username formData string true "Username of the registering user, should contain spaces"
+// @Param displayName formData string true "A user friendly will be displayed on the UI"
+// @Param email formData string true "The email address of the user"
+// @Param password formData string true "Password of the user"
+// @Param icon formData file true "Icon picture uploaded will be used in user profile"
+// @Success 201 {object} model.User
+// @Failure 409 {object} utils.HttpError
+// @Failure 500 {object} utils.HttpError
+// @Router /userWithIcon [POST]
+func CreateUserWithIcon(w http.ResponseWriter, r* http.Request) {
+	// Upload user icons
+	supportedExtensions := []string{"jpeg", "jpg", "png"}
+	r.ParseMultipartForm(32 << 20)
+	file,header,err := r.FormFile("icon")
+	if err != nil {
+		err := utils.HttpError{Err: "Failed to read icon file"}
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(err)
+	}
+	defer file.Close()
+	names := strings.Split(header.Filename, ".")
+	log.Println("Received Filename: ", names[0])
+	extension := names[1]
+	// If the extension is not supported
+	if !( sort.SearchStrings(supportedExtensions, extension) < len(supportedExtensions) ){
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(utils.HttpError{Err: "Unsupported format for icon"})
+	}
+	filename := guuid.New().String() + "." + extension
+	location, err := aws_service.UploadIconToS3(file, filename)
+	log.Println(location)
+	// Start dealing with other form data
+	username:= r.FormValue("username")
+	displayName := r.FormValue("displayName")
+	email := r.FormValue("email")
+	password:= r.FormValue("password")
+	icon := filename
+	// Create User object from these values
+	userCreate := model.User{Username:username, DisplayName: displayName, Email: email, Password: password, IconUrl: icon}
+	createdUser, saveerr := userDBService.SaveUser(userCreate)
+	if saveerr != nil {
+		log.Println(saveerr.Message)
+		httpErr := utils.HttpError{
+			Err: saveerr.Message,
+		}
+		w.WriteHeader(500)
+		json.NewEncoder(w).Encode(httpErr)
+		return
 
+	} else {
+		createdUser.Password = ""
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(createdUser)
+		return
+	}
+	return
+}
 // Create User Doc
 // @Summary Create a user
 // @Description Create a user in the database
@@ -103,9 +168,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			}{errt.Error()},
 		)
 	} else {
-		user.JWTToken = jwt
+		userFound.JWTToken = jwt
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(user)
+		json.NewEncoder(w).Encode(userFound)
 	}
 }
 // Find the user by either user Id or user name
