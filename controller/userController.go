@@ -169,6 +169,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		)
 	} else {
 		userFound.JWTToken = jwt
+		userFound.Password = ""
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(userFound)
 	}
