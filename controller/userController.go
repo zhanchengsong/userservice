@@ -40,6 +40,7 @@ func init() {
 	dbConnection := postgres.ConnectDB(username, password, databaseName, databaseHost)
 	userDBService = dbservice.UserDbservice{dbConnection}
 }
+
 // Create User With Icon Doc
 // @Summary Create a user
 // @Description Create a user in the database, this call accepts a multiform with image file as icon
@@ -54,11 +55,11 @@ func init() {
 // @Failure 409 {object} utils.HttpError
 // @Failure 500 {object} utils.HttpError
 // @Router /userWithIcon [POST]
-func CreateUserWithIcon(w http.ResponseWriter, r* http.Request) {
+func CreateUserWithIcon(w http.ResponseWriter, r *http.Request) {
 	// Upload user icons
 	supportedExtensions := []string{"jpeg", "jpg", "png"}
 	r.ParseMultipartForm(32 << 20)
-	file,header,err := r.FormFile("icon")
+	file, header, err := r.FormFile("icon")
 	if err != nil {
 		err := utils.HttpError{Err: "Failed to read icon file"}
 		w.WriteHeader(http.StatusInternalServerError)
@@ -69,21 +70,31 @@ func CreateUserWithIcon(w http.ResponseWriter, r* http.Request) {
 	log.Println("Received Filename: ", names[0])
 	extension := names[1]
 	// If the extension is not supported
-	if !( sort.SearchStrings(supportedExtensions, extension) < len(supportedExtensions) ){
+	if !(sort.SearchStrings(supportedExtensions, extension) < len(supportedExtensions)) {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.HttpError{Err: "Unsupported format for icon"})
 	}
 	filename := guuid.New().String() + "." + extension
 	location, err := aws_service.UploadIconToS3(file, filename)
+	if err != nil {
+		log.Println(err)
+
+		httpErr := utils.HttpError{
+			Err: err.Error(),
+		}
+		w.WriteHeader(500)
+		json.NewEncoder(w).Encode(httpErr)
+		return
+	}
 	log.Println(location)
 	// Start dealing with other form data
-	username:= r.FormValue("username")
+	username := r.FormValue("username")
 	displayName := r.FormValue("displayName")
 	email := r.FormValue("email")
-	password:= r.FormValue("password")
+	password := r.FormValue("password")
 	icon := filename
 	// Create User object from these values
-	userCreate := model.User{Username:username, DisplayName: displayName, Email: email, Password: password, IconUrl: icon}
+	userCreate := model.User{Username: username, DisplayName: displayName, Email: email, Password: password, IconUrl: icon}
 	createdUser, saveerr := userDBService.SaveUser(userCreate)
 	if saveerr != nil {
 		log.Println(saveerr.Message)
@@ -102,6 +113,7 @@ func CreateUserWithIcon(w http.ResponseWriter, r* http.Request) {
 	}
 	return
 }
+
 // Create User Doc
 // @Summary Create a user
 // @Description Create a user in the database
@@ -174,6 +186,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(userFound)
 	}
 }
+
 // Find the user by either user Id or user name
 // @Summary Create a JWToken for user login and return the entire profile
 // @Description Generate a JWToken if username/password is stored in database and return the complete profile including JWT Token
@@ -190,7 +203,7 @@ func FindUser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		_, nameOk := r.URL.Query()["username"]
 		if nameOk {
-			FindUserByUsername(w,r)
+			FindUserByUsername(w, r)
 		}
 	}
 }
@@ -272,11 +285,11 @@ func FindUserByUsername(w http.ResponseWriter, r *http.Request) {
 		log.Println(err.Message)
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(
-				struct {
-					Err string
-				}{
-					Err: "Failed when search user",
-				})
+			struct {
+				Err string
+			}{
+				Err: "Failed when search user",
+			})
 	} else {
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(foundUser)
