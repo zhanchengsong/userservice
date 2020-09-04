@@ -212,7 +212,6 @@ func FindUser(w http.ResponseWriter, r *http.Request) {
 // @Description check if a user exists by the username
 // @Produce json
 // @Param username path string false "Username to look for"
-// @Success 200 {object}
 // @Failure 404 {object} utils.HttpError
 // @Router /user [GET]
 func CheckUserByName(w http.ResponseWriter, r *http.Request) {
