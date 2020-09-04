@@ -23,6 +23,8 @@ func Handlers() *mux.Router {
 	r.HandleFunc("/follow", controller.CreateFollow).Methods("POST")
 	r.HandleFunc("/followers", controller.GetFollowers).Methods("GET")
 	r.HandleFunc("/followees", controller.GetFollowers).Methods("GET")
+	r.HandleFunc("/checkByUsername", controller.CheckUserByName).Methods("GET")
+	r.HandleFunc("/checkByEmail", controller.CheckUserByEmail).Methods("GET")
 	return r
 }
 

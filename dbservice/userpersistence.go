@@ -1,6 +1,7 @@
 package dbservice
 
 import (
+	errors "errors"
 	"fmt"
 	"github.com/jinzhu/gorm"
 	myerror "github.com/zhanchengsong/userservice/error"
@@ -84,4 +85,22 @@ func (dbservice *UserDbservice) FindUserByUsername(username string) (model.User,
 		return *user, &dbError
 	}
 	return *user, nil
+}
+// Check user by username, return true if username exists, return false otherwise
+func (dbservice *UserDbservice) CheckUserByUsername(username string) (bool, error) {
+	user := &( model.User{})
+	result := dbservice.DbConnection.Where("username = ?", username).First(&user)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+	return true, result.Error
+}
+// Check user by email, return true if username exists, return false otherwise
+func (dbservice *UserDbservice) CheckUserByEmail(email string) (bool, error) {
+	user := &( model.User{})
+	result := dbservice.DbConnection.Where("email = ?", email).First(&user)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+	return true, result.Error
 }

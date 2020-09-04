@@ -207,7 +207,77 @@ func FindUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+// Check the user by username
+// @Summary Check if a user exists
+// @Description check if a user exists by the username
+// @Produce json
+// @Param username path string false "Username to look for"
+// @Success 200 {object}
+// @Failure 404 {object} utils.HttpError
+// @Router /user [GET]
+func CheckUserByName(w http.ResponseWriter, r *http.Request) {
+	username, ok := r.URL.Query()["username"]
+	if !ok {
+		log.Println("Failed getting username param from url")
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(
+			struct {
+				Err string
+			}{
+				Err: "Missing path parameter username",
+			})
+	}
+	found, err := userDBService.CheckUserByUsername(username[0]);
+	if err != nil {
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(
+			struct {
+				Err string
+			}{
+				Err: "Failed when search user",
+			})
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(struct {
+			Exists bool
+		}{
+			Exists: found,
+		})
+	}
+}
 
+func CheckUserByEmail(w http.ResponseWriter, r *http.Request) {
+	email, ok := r.URL.Query()["email"]
+	if !ok {
+		log.Println("Failed getting email param from url")
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(
+			struct {
+				Err string
+			}{
+				Err: "Missing path parameter email",
+			})
+	}
+	found, err := userDBService.CheckUserByEmail(email[0])
+	if err != nil {
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(
+			struct {
+				Err string
+			}{
+				Err: "Failed when search user",
+			})
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(struct {
+			Exists bool
+		}{
+			Exists: found,
+		})
+	}
+}
 func FindUserById(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.URL.Query()["userId"]
 	if !ok {
