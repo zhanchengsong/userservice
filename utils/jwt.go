@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 )
+
 // TokenizeUser turns a user into JWTToken
 
 func TokenizeUser(user model.User) (string, error) {
@@ -13,11 +14,12 @@ func TokenizeUser(user model.User) (string, error) {
 	// Setup expires time
 	expiresAt := time.Now().Add(time.Minute * 100000).Unix()
 	tk := model.Token{
-		Name: user.DisplayName,
-		Email: user.Email,
+		Name:     user.DisplayName,
+		Email:    user.Email,
+		Username: user.Username,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expiresAt,
-			Issuer: "twitterUserService",
+			Issuer:    "twitterUserService",
 		},
 	}
 
